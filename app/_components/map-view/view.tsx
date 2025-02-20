@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+
 import { mapModelId } from "@/config/constants";
 import { MapFrame } from "@/components/containers/map-frame";
 import { useSdkInstanceStore } from "@/store/matterport-sdk";
