@@ -6,6 +6,9 @@ import { cn } from "@/utils/helpers";
 import { Menu } from "@/components/ui/menu";
 import { useSdkInstanceStore } from "@/store";
 import { useTagsListQueryData } from "@/utils/hooks";
+import { moveToSweep } from "@/utils/matterport-sdk";
+
+import { useTags } from "./utils/hooks";
 
 export function NavigationMenu({
   className,
@@ -15,29 +18,17 @@ export function NavigationMenu({
 
   const { instance } = useSdkInstanceStore();
 
-  React.useEffect(() => {
-    if (instance) {
-      if (data) {
-        instance.Tag.add(
-          ...data.map((tag) => ({
-            id: tag.id,
-            label: tag.label,
-            description: tag.description,
-            anchorPosition: tag.position,
-            stemVector: tag.stemVector,
-            enabled: true,
-            stemVisible: true,
-          }))
-        );
-      }
-    }
-  }, [data, instance]);
+  useTags();
 
   return (
     <Menu className={cn("absolute top-4 right-4 z-10", className)} {...props}>
       {data && !!instance ? (
         data.map((record) => (
-          <button key={record.id} type="button">
+          <button
+            key={record.id}
+            type="button"
+            onClick={() => moveToSweep(instance, record.sweepId)}
+          >
             Teleport to {record.label.toLocaleLowerCase()}
           </button>
         ))

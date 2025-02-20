@@ -6,4 +6,5 @@ export interface Tag {
   stemVector: Vector3;
   label: string;
   description: string;
+  sweepId: string;
 }

@@ -10,4 +10,5 @@ export interface TagApiResponse {
   description: string;
   position: PositionApiResponse;
   stemVector: PositionApiResponse;
+  sweepId: string;
 }

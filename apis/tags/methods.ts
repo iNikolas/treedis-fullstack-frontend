@@ -23,5 +23,6 @@ export async function getTagsList(): Promise<Tag[]> {
     ),
     label: record.label,
     description: record.description,
+    sweepId: record.sweepId,
   }));
 }
