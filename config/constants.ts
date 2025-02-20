@@ -9,5 +9,3 @@ if (!process.env.NEXT_PUBLIC_MATTER_MODEL_ID) {
 export const mapSdkKey = process.env.NEXT_PUBLIC_MATTER_PORT_SDK;
 
 export const mapModelId = process.env.NEXT_PUBLIC_MATTER_MODEL_ID;
-
-export const transitionTimeMs = 750;

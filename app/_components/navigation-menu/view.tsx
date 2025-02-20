@@ -4,11 +4,11 @@ import React from "react";
 
 import { cn } from "@/utils/helpers";
 import { Menu } from "@/components/ui/menu";
-import { useTagsListQueryData } from "@/utils/hooks";
+import { useSdkInstanceStore } from "@/store";
 import { moveToSweep } from "@/utils/matterport-sdk";
-import { useCurrentSweepDataStore, useSdkInstanceStore } from "@/store";
+import { useTagsListQueryData } from "@/utils/hooks";
 
-import { useTags } from "./utils/hooks";
+import { useNavigateToSweepHandler, useTags } from "./utils/hooks";
 
 export function NavigationMenu({
   className,
@@ -16,9 +16,9 @@ export function NavigationMenu({
 }: React.HTMLAttributes<HTMLUListElement>) {
   const { data } = useTagsListQueryData();
 
-  const { data: currentSweepData } = useCurrentSweepDataStore();
-
   const { instance } = useSdkInstanceStore();
+
+  const navigateToSweepHandler = useNavigateToSweepHandler();
 
   useTags();
 
@@ -29,7 +29,11 @@ export function NavigationMenu({
           <button
             key={record.id}
             type="button"
-            onClick={() => moveToSweep(instance, record.sweepId)}
+            onClick={() =>
+              moveToSweep(instance, record.sweepId, {
+                transition: instance.Sweep.Transition.INSTANT,
+              })
+            }
           >
             Teleport to {record.label.toLocaleLowerCase()}
           </button>
@@ -42,38 +46,13 @@ export function NavigationMenu({
           <button
             key={record.id}
             type="button"
-            onClick={async () => {
-              if (!currentSweepData) {
-                return;
-              }
-
-              const sweepGraph = await instance.Sweep.createGraph();
-
-              const startSweep = sweepGraph.vertex(currentSweepData.id);
-              const endSweep = sweepGraph.vertex(record.sweepId);
-
-              if (!startSweep || !endSweep) {
-                return;
-              }
-
-              const { path } = instance.Graph.createAStarRunner(
-                sweepGraph,
-                startSweep,
-                endSweep
-              ).exec();
-
-              for (const step of path) {
-                await instance.Sweep.moveTo(step.id, {
-                  transition: instance.Sweep.Transition.FLY,
-                });
-              }
-            }}
+            onClick={() => navigateToSweepHandler(record.sweepId)}
           >
-            Navigate to {record.label.toLocaleLowerCase()}
+            Navigate to {record.label.toLowerCase()}
           </button>
         ))
       ) : (
-        <button type="button" className="skeleton h-9" />
+        <button type="button" className="skeleton h-9 mt-0.5" />
       )}
     </Menu>
   );

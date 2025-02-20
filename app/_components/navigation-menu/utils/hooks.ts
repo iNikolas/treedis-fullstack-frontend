@@ -1,7 +1,11 @@
 import React from "react";
 
+import {
+  useBuildSweepNavigationHandler,
+  useCameraRotationHandler,
+  useTagsListQueryData,
+} from "@/utils/hooks";
 import { useSdkInstanceStore } from "@/store";
-import { useTagsListQueryData } from "@/utils/hooks";
 
 export function useTags() {
   const { data } = useTagsListQueryData();
@@ -25,4 +29,33 @@ export function useTags() {
       }
     }
   }, [data, instance]);
+}
+
+export function useNavigateToSweepHandler() {
+  const { instance } = useSdkInstanceStore();
+
+  const handleCameraRotation = useCameraRotationHandler();
+
+  const getSweepNavigation = useBuildSweepNavigationHandler();
+
+  const handler = React.useCallback(
+    async (sweepId: string) => {
+      if (!instance) {
+        return;
+      }
+
+      const path = await getSweepNavigation(sweepId);
+
+      for (const step of path.slice(1)) {
+        await handleCameraRotation(step.data.position.x, step.data.position.z);
+
+        await instance.Sweep.moveTo(step.id, {
+          transition: instance.Sweep.Transition.FLY,
+        });
+      }
+    },
+    [getSweepNavigation, handleCameraRotation, instance]
+  );
+
+  return handler;
 }
