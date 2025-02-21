@@ -50,7 +50,7 @@ export async function buildPathMarkersNode({
   const stepDistance = markerSize * 4;
   const root = lightComponent.outputs.objectRoot;
 
-  if (!root) {
+  if (!root || path.length < 2) {
     return;
   }
 
