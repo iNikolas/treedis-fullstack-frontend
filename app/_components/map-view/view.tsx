@@ -6,6 +6,7 @@ import { mapModelId } from "@/config/constants";
 import { MapFrame } from "@/components/containers/map-frame";
 import { useSdkInstanceStore } from "@/store/matterport-sdk";
 import { useCameraData, useCurrentSweepData } from "@/utils/hooks";
+
 import { useInitializeSceene } from "./utils/hooks";
 
 export function MapView(props: React.IframeHTMLAttributes<HTMLIFrameElement>) {

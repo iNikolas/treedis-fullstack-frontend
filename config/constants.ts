@@ -19,3 +19,5 @@ export const sceeneNodePosition = {
   y: 0,
   z: -4.34904670715332,
 };
+
+export const officeLightColor = { r: 1, g: 0.94, b: 0.85 };

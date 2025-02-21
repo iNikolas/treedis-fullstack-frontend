@@ -22,7 +22,7 @@ export function useInitializeSceene() {
         renderer.shadowMap.type = three.PCFSoftShadowMap;
       });
 
-      node.addComponent("mp.ambientLight", {
+      node.addComponent(instance.Scene.Component.AMBIENT_LIGHT, {
         enabled: true,
         color: {
           r: 1,
@@ -32,7 +32,7 @@ export function useInitializeSceene() {
         intensity: 0.8,
       });
 
-      node.addComponent("mp.gltfLoader", {
+      node.addComponent(instance.Scene.Component.GLTF_LOADER, {
         url: "/models/cat.glb",
         visible: true,
         localScale: {
@@ -48,25 +48,28 @@ export function useInitializeSceene() {
         localRotation: { x: -90, y: -175, z: 0 },
       });
 
-      const lightComponent = node.addComponent("mp.directionalLight", {
-        enabled: true,
-        color: {
-          r: 1,
-          g: 0.94,
-          b: 0.85,
-        },
-        intensity: 0.8,
-        position: {
-          x: 15,
-          y: 2,
-          z: 8,
-        },
-        target: {
-          x: 0,
-          y: 0,
-          z: 0,
-        },
-      });
+      const lightComponent = node.addComponent(
+        instance.Scene.Component.DIRECTIONAL_LIGHT,
+        {
+          enabled: true,
+          color: {
+            r: 1,
+            g: 0.94,
+            b: 0.85,
+          },
+          intensity: 0.8,
+          position: {
+            x: 15,
+            y: 2,
+            z: 8,
+          },
+          target: {
+            x: 0,
+            y: 0,
+            z: 0,
+          },
+        }
+      );
 
       node.position.x = sceeneNodePosition.x;
       node.position.y = sceeneNodePosition.y;
