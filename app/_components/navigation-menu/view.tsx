@@ -2,11 +2,16 @@
 
 import React from "react";
 
+import {
+  useCameraDataStore,
+  useSdkInstanceStore,
+  useSearchTagStore,
+} from "@/store";
 import { cn } from "@/utils/helpers";
 import { Menu } from "@/components/ui/menu";
+import { Input } from "@/components/ui/input";
 import { moveToSweep } from "@/utils/matterport-sdk";
 import { useTagsListQueryData } from "@/utils/hooks";
-import { useCameraDataStore, useSdkInstanceStore } from "@/store";
 import { AnimatePresence } from "@/components/ui/animate-presence";
 
 import { useNavigateToSweepHandler, useTags } from "./utils/hooks";
@@ -15,10 +20,9 @@ export function NavigationMenu({
   className,
   ...props
 }: React.HTMLAttributes<HTMLUListElement>) {
+  const { value, valueChanged } = useSearchTagStore();
   const { data } = useTagsListQueryData();
-
   const { instance } = useSdkInstanceStore();
-
   const { data: cameraData } = useCameraDataStore();
 
   const navigateToSweepHandler = useNavigateToSweepHandler();
@@ -30,7 +34,14 @@ export function NavigationMenu({
       className={cn("absolute top-4 right-4 z-10", className)}
       show={cameraData?.mode === instance?.Mode.Mode.INSIDE}
     >
+      <Input
+        value={value}
+        onChange={(e) => valueChanged(e.target.value)}
+        className="mb-2"
+        placeholder="Search"
+      />
       <Menu {...props}>
+        {!!data && !data.length && <a>No Tags found</a>}
         {data && !!instance ? (
           data.map((record) => (
             <button

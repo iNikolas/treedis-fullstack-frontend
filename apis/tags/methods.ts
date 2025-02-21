@@ -6,8 +6,14 @@ import { Tag } from "@/entities/tags";
 import { TagApiResponse } from "./types";
 import { apiUrl } from "../config/constants";
 
-export async function getTagsList(): Promise<Tag[]> {
-  const { data } = await axios.get<TagApiResponse[]>(`${apiUrl}/tags`);
+export async function getTagsList({
+  search,
+}: {
+  search?: string;
+}): Promise<Tag[]> {
+  const { data } = await axios.get<TagApiResponse[]>(
+    `${apiUrl}/tags?${search ? `search=${search}` : ""}`
+  );
 
   return data.map((record) => ({
     id: record.id,

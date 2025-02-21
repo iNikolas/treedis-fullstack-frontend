@@ -9,12 +9,12 @@ export function Menu({
 }: React.HTMLAttributes<HTMLUListElement>) {
   return (
     <ul
-      className={cn("menu bg-base-200 rounded-box w-56", className)}
+      className={cn("menu bg-base-200 rounded-box w-full", className)}
       {...props}
     >
-      {React.Children.map(children, (child) => (
-        <li>{child}</li>
-      ))}
+      {React.Children.map(children, (child) =>
+        child ? <li>{child}</li> : child
+      )}
     </ul>
   );
 }

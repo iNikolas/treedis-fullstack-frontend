@@ -31,15 +31,18 @@ export function useTags() {
 }
 
 export function useNavigateToSweepHandler() {
+  const [isNavigating, setIsNavigating] = React.useState(false);
   const { instance } = useSdkInstanceStore();
   const handleCameraRotation = useCameraRotationHandler();
   const getSweepNavigation = useBuildSweepNavigationHandler();
 
   return React.useCallback(
     async (sweepId: string) => {
-      if (!instance) {
+      if (!instance || isNavigating) {
         return;
       }
+
+      setIsNavigating(true);
 
       const path = await getSweepNavigation(sweepId);
 
@@ -53,7 +56,8 @@ export function useNavigateToSweepHandler() {
       }
 
       node?.stop();
+      setIsNavigating(false);
     },
-    [getSweepNavigation, handleCameraRotation, instance]
+    [getSweepNavigation, handleCameraRotation, instance, isNavigating]
   );
 }
