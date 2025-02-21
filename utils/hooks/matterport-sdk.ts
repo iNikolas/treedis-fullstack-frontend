@@ -5,11 +5,11 @@ import {
   useCurrentSweepDataStore,
   useSdkInstanceStore,
 } from "@/store";
-import { CommonMpSdk } from "@/types/sdk";
+import { MpSdk } from "@/types/sdk";
 
 import { getAngleWithYAxis } from "../helpers";
 
-export function useCurrentSweepData(instance: CommonMpSdk | null) {
+export function useCurrentSweepData(instance: MpSdk | null) {
   const { dataChanged } = useCurrentSweepDataStore();
 
   React.useEffect(() => {
@@ -21,7 +21,7 @@ export function useCurrentSweepData(instance: CommonMpSdk | null) {
   }, [dataChanged, instance]);
 }
 
-export function useCameraData(instance: CommonMpSdk | null) {
+export function useCameraData(instance: MpSdk | null) {
   const { dataChanged } = useCameraDataStore();
 
   React.useEffect(() => {

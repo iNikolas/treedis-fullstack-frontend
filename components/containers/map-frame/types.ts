@@ -1,8 +1,8 @@
-import { CommonMpSdk } from "@/types/sdk";
+import { MpSdk } from "@/types/sdk";
 
 export interface MapFrameProps
   extends React.IframeHTMLAttributes<HTMLIFrameElement> {
   modelId: string;
-  onInit?: (sdk: CommonMpSdk) => void;
+  onInit?: (sdk: MpSdk) => void;
   autoplay?: boolean;
 }

@@ -1,10 +1,10 @@
 import { create } from "zustand";
 
-import { Camera, CommonMpSdk, Sweep } from "@/types/sdk";
+import { Camera, MpSdk, Sweep } from "@/types/sdk";
 
 export const useSdkInstanceStore = create<{
-  instance: CommonMpSdk | null;
-  instanceChanged: (val: CommonMpSdk | null) => void;
+  instance: MpSdk | null;
+  instanceChanged: (val: MpSdk | null) => void;
 }>((set) => ({
   instance: null,
   instanceChanged: (instance) => set({ instance }),

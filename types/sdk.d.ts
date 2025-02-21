@@ -1,4 +1,9 @@
 // 25.2.2_webgl-203-g6c2f00dfc3
+/// <reference types="webxr" />
+
+import * as THREE from "three";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+
 export type Vector2 = {
   x: number;
   y: number;
@@ -4928,7 +4933,1289 @@ export declare namespace CommonMpSdk {
     View,
   };
 }
-type ConnectOptions = {
+/**
+ * The Scene namespace is currently only available for Bundle SDK distributions.
+ * [Learn more about the Bundle SDK](https://matterport.github.io/showcase-sdk/sdkbundle_home.html)
+ */
+export declare namespace Scene {
+  export enum Component {
+    OBJ_LOADER = "mp.objLoader",
+    FBX_LOADER = "mp.fbxLoader",
+    DAE_LOADER = "mp.daeLoader",
+    GLTF_LOADER = "mp.gltfLoader",
+    SCROLLING_TUBE = "mp.scrollingTube",
+    TRANSFORM_CONTROLS = "mp.transformControls",
+    LIGHTS_COMPONENT = "mp.lights",
+    POINT_LIGHT = "mp.pointLight",
+    DIRECTIONAL_LIGHT = "mp.directionalLight",
+    AMBIENT_LIGHT = "mp.ambientLight",
+    CAMERA = "mp.camera",
+    INPUT = "mp.input",
+    XR = "mp.xr",
+  }
+  export type SceneComponentName = `${Component}` | (string & {});
+  interface LightComponentCommonOptions {
+    /** If true the ambient light is active in the scene.
+     *
+     * Default `true` */
+    enabled?: boolean;
+    /** The color of the light. Each color component is a number between 0 and 1.
+     *
+     * Default `{ r: 1.0, g: 1.0, b: 1.0 }`
+     */
+    color?: Color;
+    /** The light intensity.
+     *
+     * Default `1.0` for ambient lights, `2` for others.
+     */
+    intensity?: number;
+  }
+  interface LoaderCommonOptions {
+    /** The url to the file.
+     *
+     * Default `''`
+     */
+    url?: string;
+    /** If true, the model is visible.
+     *
+     * Default `true`
+     */
+    visible?: boolean;
+    /** The local offset of the model.
+     *
+     * Default `{ x: 0, y: 0, z: 0 }`
+     */
+    localPosition?: Vector3;
+    /** The local rotation of the model in euler angles.
+     *
+     * Default `{ x: 0, y: 0, z: 0 }`
+     */
+    localRotation?: Vector3;
+    /** The local scale of the model.
+     *
+     * Default `{ x: 1, y: 1, z: 1 }`
+     */
+    localScale?: Vector3;
+    /** When set, the collider output is set to the loaded model.
+     *
+     * Default `true`
+     */
+    colliderEnabled?: boolean;
+  }
+  export interface SceneComponentOptions
+    extends Record<SceneComponentName, any> {
+    [Component.AMBIENT_LIGHT]: LightComponentCommonOptions;
+    [Component.DIRECTIONAL_LIGHT]: LightComponentCommonOptions & {
+      /** The world space position of the directional light.
+       *
+       * Default `{ x: 1, y: 5, z: 1}`
+       */
+      position?: Vector3;
+      /** The directional light’s world space target position.
+       *
+       * Default `{ x: 0, y: 0, z: 0 }`
+       */
+      target?: Vector3;
+      /** Enables debugging visuals.
+       *
+       * Default `false`
+       */
+      debug?: boolean;
+    };
+    [Component.POINT_LIGHT]: LightComponentCommonOptions & {
+      /** The world space position of the point light.
+       *
+       * Default `{ x: 1, y: 5, z: 1 }`
+       */
+      position?: Vector3;
+      /** Maximum range of the light.
+       *
+       * Default `0` (no limit)
+       */
+      distance?: number;
+      /** The amount the light dims from the point light.
+       *
+       * Default `1`
+       */
+      decay?: number;
+      /** Enables debugging visuals.
+       *
+       * Default `false`
+       */
+      debug?: boolean;
+    };
+    [Component.GLTF_LOADER]: LoaderCommonOptions;
+    [Component.DAE_LOADER]: LoaderCommonOptions;
+    [Component.FBX_LOADER]: LoaderCommonOptions;
+    [Component.OBJ_LOADER]: LoaderCommonOptions & {
+      /** The url to the material file.
+       *
+       * Default `''`
+       */
+      materialUrl?: string;
+    };
+    [Component.TRANSFORM_CONTROLS]: {
+      /** If true the transform control is visible in the scene.
+       *
+       * Default `true`
+       */
+      visible?: boolean;
+      /** The transformation mode.
+       *
+       * Default `translate`
+       */
+      mode?: "translate" | "rotate" | "scale";
+      /** The node being controlled by this component.
+       *
+       * Default `null` (hidden)
+       */
+      selection?: Scene.INode | null;
+      /** X axis control visibility.
+       *
+       * Default `true`
+       */
+      showX?: boolean;
+      /** Y axis control visibility.
+       *
+       * Default `true`
+       */
+      showY?: boolean;
+      /** Z axis control visibility.
+       *
+       * Default `true`
+       */
+      showZ?: boolean;
+      /** The size of the transform control.
+       *
+       * Default `1`
+       */
+      size?: number;
+    };
+    [Component.INPUT]: {
+      /** If true, events will be available for binding or spying. If false, no events will fire.
+       *
+       * Default `true`
+       */
+      eventsEnabled?: boolean;
+      /** If set to false, all showcase user based navigation will be turned off.
+       *
+       * Default `true`
+       */
+      userNavigationEnabled?: boolean;
+      /** If set to false, the input component will only receive unhandled events.
+       *
+       * Default `true`
+       */
+      unfiltered?: boolean;
+    };
+    [Component.CAMERA]: {
+      /** If true, this components acquires control of the camera.
+       *
+       * Default `false`
+       */
+      enabled?: boolean;
+      /** A three.js camera object.
+       *
+       * Default `null`
+       */
+      camera?: THREE.Camera | null;
+    };
+    [Component.XR]: Record<string, never>;
+    [name: string]: unknown;
+  }
+  export type PredefinedOutputs = {
+    /**
+     * Set this to any Object3D and it will be added to the scene.
+     */
+    objectRoot: THREE.Object3D | null;
+    /**
+     * Set this to any Object3D and it will be interactable. See [[IComponent.onEvent]]
+     */
+    collider: THREE.Object3D | null;
+  };
+  export enum InteractionType {
+    /** CLICK events */
+    CLICK = "INTERACTION.CLICK",
+    /** HOVER events */
+    HOVER = "INTERACTION.HOVER",
+    /** DRAG events (mousedown then move) */
+    DRAG = "INTERACTION.DRAG",
+    DRAG_BEGIN = "INTERACTION.DRAG_BEGIN",
+    DRAG_END = "INTERACTION.DRAG_END",
+    POINTER_MOVE = "INTERACTION.POINTER_MOVE",
+    POINTER_BUTTON = "INTERACTION.POINTER_BUTTON",
+    SCROLL = "INTERACTION.SCROLL",
+    KEY = "INTERACTION.KEY",
+    LONG_PRESS_START = "INTERACTION.LONG_PRESS_START",
+    LONG_PRESS_END = "INTERACTION.LONG_PRESS_END",
+    MULTI_SWIPE = "INTERACTION.MULTI_SWIPE",
+    MULTI_SWIPE_END = "INTERACTION.MULTI_SWIPE_END",
+    PINCH = "INTERACTION.PINCH",
+    PINCH_END = "INTERACTION.PINCH_END",
+    ROTATE = "INTERACTION.ROTATE",
+    ROTATE_END = "INTERACTION.ROTATE_END",
+  }
+  /**
+   * The payload for a 3D interaction event.
+   */
+  export type InteractionEvent = {
+    hover?: boolean;
+    collider: THREE.Object3D;
+    point: THREE.Vector3 | null;
+    normal: THREE.Vector3 | null;
+    input: unknown;
+  };
+  /**
+   * The type of a path with regards to which property of a component it represents
+   */
+  export enum PathType {
+    INPUT = "input",
+    OUTPUT = "output",
+    EVENT = "event",
+    EMIT = "emit",
+  }
+  /**
+   * **Scene Node**
+   *
+   * A scene node is an object with a 3D transform: position, rotation, and scale.
+   * It can contain a collection of components and manages their life cycle.
+   *
+   * A scene node has the following states:
+   *
+   * **Initializing** - after construction but before start has been called<br>
+   * **Updating** - after start has been called but before stop has been called<br>
+   * **Destroyed** - after stop has been called
+   *
+   * Components can only be added during the Initializing state. A scene node cannot be restarted.
+   *
+   * ```
+   * sdk.Scene.createNode().then(function(node) {
+   *    node.addComponent('mp.gltfLoader', {
+   *      url: 'http://www.someModelSite.com/rabbit.gltf'
+   *    });
+   *
+   *    node.position.set(0, 1, 0);
+   *    node.start();
+   * });
+   * ```
+   *
+   * Setting the position, rotation, or scale of a scene node affects child components.
+   *
+   */
+  export interface INode {
+    /**
+     * Instantiates a component and adds it to the nodes internal component list.
+     * This function does nothing if the node is in the Operating or Destroyed state.
+     * @param name The registered component name.
+     * @param initialInputs initial key-value pairs that will be applied to the component before onInit is called.
+     * If the keys do not match the components inputs, they are ignored.
+     * @param id an optional id for this component, if not specified an id will be computed for the component.
+     *
+     * @returns The newly created component.
+     */
+    addComponent<T extends SceneComponentName>(
+      name: T,
+      initialInputs?: SceneComponentOptions[T],
+      id?: string
+    ): IComponent;
+    /**
+     * Returns in iterator iterating over all the components contained by this node.
+     */
+    componentIterator(): IterableIterator<IComponent>;
+    /**
+     * Transitions the node to Operating if it is in the Initializing state.
+     * Calling this function has no effect if the node is already Operating.
+     */
+    start(): void;
+    /**
+     * Transitions the node to Destroyed state if it is in any state.
+     * Calling this function has no effect if the node is already Destroyed.
+     */
+    stop(): void;
+    /**
+     * The node name.
+     */
+    name: string;
+    /**
+     * The scene node position. You can call methods on this object to set its values.
+     * See <https://threejs.org/docs/#api/en/math/Vector3>
+     */
+    readonly position: THREE.Vector3;
+    /**
+     * The scene node rotation. You can call methods on this object to set its values.
+     * See <https://threejs.org/docs/#api/en/math/Quaternion>
+     */
+    readonly quaternion: THREE.Quaternion;
+    /**
+     * The scene node scale vector. You can call methods on this object to set its values.
+     * See <https://threejs.org/docs/#api/en/math/Vector3>
+     */
+    readonly scale: THREE.Vector3;
+    /**
+     * A read-only unique id used to reference this node in a path binding.
+     * This id is autogenerated unless it is specifed and created via the Scene.Object.
+     */
+    readonly id: string;
+  }
+  /**
+   * **Component Context**<br>
+   * The context object contains the three.js module and the main aspects of the rendering engine.<br>
+   * The camera, scene, or renderer may will likely be replaced in the future with an sdk module.
+   *
+   * ```
+   * function Cylinder() {
+   *    this.onInit = function() {
+   *      var THREE = this.context.three;
+   *      var geometry = new THREE.CylinderGeometry( 5, 5, 20, 32 );
+   *      var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+   *      var cylinder = new THREE.Mesh( geometry, material );
+   *    };
+   * }
+   * ```
+   */
+  export interface IComponentContext {
+    /**
+     * The three.js module.
+     */
+    three: typeof THREE;
+    /**
+     * The showcase three.js renderer.<br>
+     * See <a href="https://threejs.org/docs/#api/en/renderers/WebGLRenderer" target="_blank">https://threejs.org/docs/#api/en/renderers/WebGLRenderer</a>
+     */
+    renderer: THREE.WebGLRenderer;
+    /**
+     * The showcase scene.<br>
+     * See <a href="https://threejs.org/docs/#api/en/scenes/Scene" target="_blank">https://threejs.org/docs/#api/en/scenes/Scene</a>
+     *
+     */
+    scene: THREE.Scene;
+    /**
+     * The main camera. It is read-only.<br>
+     * See <a href="https://threejs.org/docs/#api/en/cameras/Camera" target="_blank">https://threejs.org/docs/#api/en/cameras/Camera</a>
+     */
+    camera: THREE.Camera;
+  }
+  /**
+	 * IComponent
+	 *
+	 * Use this interface to implement a component and register it with the sdk.
+	 *
+	 * ```
+	 * function Box() {
+	 *    this.inputs = {
+	 *      visible: false,
+	 *    };
+	 *
+	 *    this.onInit = function() {
+	 *      var THREE = this.context.three;
+	 *      var geometry = new THREE.BoxGeometry(1, 1, 1);
+	 *      this.material = new THREE.MeshBasicMaterial();
+	 *      var mesh = new THREE.Mesh( geometry, this.material );
+	 *      this.outputs.objectRoot = mesh;
+	 *    };
+	 *
+	 *    this.onEvent = function(type, data) {
+	 *    }
+	 *
+	 *    this.onInputsUpdated = function(previous) {
+	 *    };
+	 *
+	 *    this.onTick = function(tickDelta) {
+	 *    }
+	 *
+	 *    this.onDestroy = function() {
+	 *      this.material.dispose();
+	 *    };
+	 * }
+  
+	 * function BoxFactory() {
+	 *    return new Box();
+	 * }
+	 *
+	 * // Registering the component with the sdk
+	 * sdk.Scene.register('box', BoxFactory);
+	 *
+	 * ```
+	 */
+  export interface IComponent {
+    /**
+     * The component type. This value is the same string used to identify the component factory.
+     */
+    readonly componentType: string;
+    /**
+     * An optional dictionary of properties that affects the behavior of the component.
+     * These properties can be changed by an external source at any time. It is up to the component
+     * to respond appropriately to the changes. These input properties can also be bind targets to an
+     * observable source e.g. the output property of another component.
+     */
+    inputs?: Record<string, unknown>;
+    /**
+     * An optional dictionary of properties that this component computes.
+     * This dictionary is observable and can be the source of a bind target.
+     *
+     * objectRoot and collider are reserved properties which are added to all components automatically.
+     * The value set to objectRoot will get added to the scene graph as a child of the scene node.
+     * The value set to collider will get included in raycast hit detection.
+     *
+     * ```
+     * function Box() {
+     *    this.onInit = function() {
+     *      var THREE = this.context.three;
+     *      var geometry = new THREE.BoxGeometry(1, 1, 1);
+     *      this.material = new THREE.MeshBasicMaterial();
+     *      var mesh = new THREE.Mesh( geometry, this.material );
+     *
+     *      this.outputs.objectRoot = mesh;   // gets added to the scene node
+     *      this.outputs.collider = mesh;     // will now be part of raycast testing
+     *    }
+     * }
+     * ```
+     */
+    outputs: Record<string, unknown> & PredefinedOutputs;
+    /**
+     * An optional dictionary of events that this component handles through its `onEvent`.
+     * Setting an event to a falsy value temporarily stops this component from receiving said event.
+     */
+    events: Record<string, boolean>;
+    /**
+     * An optional dictionary of events emitted by this component.
+     * Setting an emit to a falsy value will prevent the component from emitting the event when using `.notify`.
+     * These properties can be changed by an external source at any time.
+     * If this dictionary is omitted, any and all events will be emitted from `.notify`.
+     */
+    emits?: Record<string, boolean>;
+    /**
+     * The context provides access to the underlying rendering engine. The sdk framework adds it
+     * to the component during construction.
+     */
+    context: IComponentContext;
+    /**
+     * This function is called once after the scene node its attached to has started.
+     */
+    onInit?(): void;
+    /**
+     * This function is called once for each interaction or event that occurred during the last frame.
+     * The component must set outputs.collider with an Object3D to get interaction callbacks or bindEvent to receive other events.
+     */
+    onEvent?(eventType: string | InteractionType, eventData?: unknown): void;
+    /**
+     * This function is called after one or more input properties have changed.
+     * It will be called at most once a frame.
+     */
+    onInputsUpdated?(previousInputs: Record<string, unknown>): void;
+    /**
+     *  This function is called once a frame after input changes have been detected.
+     */
+    onTick?(tickDelta: number): void;
+    /**
+     * This function is called once right before the scene node has stopped.
+     */
+    onDestroy?(): void;
+    /**
+     * Call this function to bind an input property to an output property on another
+     * component.
+     *
+     * ```
+     * const [sceneObject] = await sdk.Scene.createObjects(1);
+     * const node1 = sceneObject.createNode();
+     * const node2 = sceneObject.createNode();
+     *
+     * // mp.objLoader has an outputs.visible property
+     * const comp1 = node1.addComponent('mp.objLoader');
+     *
+     * // myComponent has an inputs.toggleState property
+     * const comp2 = node2.addComponent('myComponent');
+     *
+     * comp1.bind('visible', comp2, 'toggleState');
+     *
+     * node1.start();
+     * node2.start();
+     *
+     * // comp1.inputs.visible will now always equal comp2.outputs.toggleState
+     * });
+     *
+     * ```
+     * @param prop inputs property name
+     * @param src source component
+     * @param srcProp source outputs property name
+     * @deprecated Use [[IObject.bindPath]] instead.
+     */
+    bind(prop: string, src: IComponent, srcProp: string): void;
+    /**
+     * Notifies this component of an `eventType` when the `src` Component calls `notify` with a `srcEventType` event
+     * @deprecated Use [[IObject.bindPath]] instead.
+     */
+    bindEvent(eventType: string, src: IComponent, srcEventType: string): void;
+    /**
+     * Emit an event to other components
+     */
+    notify(eventType: string, eventData?: unknown): void;
+    /**
+     * Spy on a component's notify from outside of the component system
+     * @returns {ISubscription} an object responsible for removing the spy
+     * @deprecated Use [[IObject.spyOnEvent]] instead.
+     */
+    spyOnEvent(spy: IComponentEventSpy): ISubscription;
+  }
+  /**
+   * A spy that can be attached to be notified of a component events using `spyOnEvent`
+   */
+  export interface IComponentEventSpy<T = unknown> {
+    /**
+     * The type of event to spy on
+     */
+    readonly eventType: string;
+    /**
+     * Called when the attached component notifies of an `eventType` event
+     * @param eventData
+     */
+    onEvent(eventData?: T): void;
+  }
+  export interface IComponentDesc {
+    name: string;
+    factory: () => IComponent;
+  }
+  /**
+   * A descriptor for an input component property contained by a scene object.
+   */
+  export type InputPathDescriptor = {
+    /**
+     * The user defined id of the path. This id must be a unique string for the scene object.
+     */
+    id: string;
+    /**
+     * The type of the path: PathType.INPUT
+     */
+    type: PathType.INPUT;
+    /**
+     * The parent scene node of the component.
+     */
+    node: Scene.INode;
+    /**
+     * The component with the property.
+     */
+    component: Scene.IComponent;
+    /**
+     * The property name of the component.
+     */
+    property: string;
+  };
+  /**
+   * A descriptor for an output component property contained by a scene object.
+   */
+  export type OutputPathDescriptor = {
+    /**
+     * The user defined id of the path. This id must be a unique string for the scene object.
+     */
+    id: string;
+    /**
+     * The type of the path: PathType.OUTPUT
+     */
+    type: PathType.OUTPUT;
+    /**
+     * The parent scene node of the component.
+     */
+    node: Scene.INode;
+    /**
+     * The component with the property.
+     */
+    component: Scene.IComponent;
+    /**
+     * The property name of the component.
+     */
+    property: string;
+  };
+  /**
+   * A descriptor for an event component property contained by a scene object.
+   */
+  export type EventPathDescriptor = {
+    /**
+     * The user defined id of the path. This id must be a unique string for the scene object.
+     */
+    id: string;
+    /**
+     * The type of the path: PathType.EVENT
+     */
+    type: PathType.EVENT;
+    /**
+     * The parent scene node of the component.
+     */
+    node: Scene.INode;
+    /**
+     * The component with the property.
+     */
+    component: Scene.IComponent;
+    /**
+     * The property name of the component.
+     */
+    property: string;
+  };
+  /**
+   * A descriptor for an emit component property contained by a scene object.
+   */
+  export type EmitPathDescriptor = {
+    /**
+     * The user defined id of the path. This id must be a unique string for the scene object.
+     */
+    id: string;
+    /**
+     * The type of the path: PathType.EMIT
+     */
+    type: PathType.EMIT;
+    /**
+     * The parent scene node of the component.
+     */
+    node: Scene.INode;
+    /**
+     * The component with the property.
+     */
+    component: Scene.IComponent;
+    /**
+     * The property name of the component.
+     */
+    property: string;
+  };
+  export interface PathBase {
+    /**
+     * The object this path is associated with
+     */
+    readonly object: Scene.IObject;
+    /**
+     * The id of this path. Set to a random string, or the id provided when creating the path
+     */
+    readonly id: string;
+  }
+  /**
+   * A path to a component's input property
+   */
+  export interface InputPath<T = unknown> extends PathBase {
+    /**
+     * Get the value of the property associated with this path
+     */
+    get(): T;
+    /**
+     * Set the value of the property associated with this path
+     * @param newVal
+     */
+    set(newVal: T): void;
+    /**
+     * Bind this path to an [[OutputPath]]. As the value of the bound output path changes, the value returned by [[get]] will also change
+     * @param outputPath
+     */
+    bind(outputPath: OutputPath): void;
+  }
+  /**
+   * A path to a component's output property
+   */
+  export interface OutputPath<T = unknown> extends PathBase {
+    /**
+     * Get the value of the property associated with this path
+     */
+    get(): T;
+    /**
+     * Bind this path to an [[InputPath]]. As the value of this output changes, the value returned by the bound [[InputPath.get]] will also change
+     * @param outputPath
+     */
+    bind(inputPath: InputPath): void;
+  }
+  /**
+   * A path to a component's event property
+   */
+  export interface EventPath<T = unknown> extends PathBase {
+    /**
+     * Bind this path to an [[EmitPath]].
+     */
+    bind(emitPath: EmitPath): void;
+    /**
+     * Emit the event associated with this path. This is similar to calling [[IComponent.onEvent]] directly.
+     */
+    emit(payload: T): void;
+    /**
+     * Disable `this.emit` and the associated Component's `onEvent` from being triggered
+     */
+    disable(): void;
+    /**
+     * Enable `this.emit` and the associated Component's `onEvent` so it can receive the event again
+     */
+    enable(): void;
+  }
+  /**
+   * A path to a component's emit property
+   */
+  export interface EmitPath<T = unknown> extends PathBase {
+    /**
+     * Bind this path to an [[EventPath]].
+     */
+    bind(eventPath: EventPath): void;
+    /**
+     * Emit the event associated with this path. This is similar to [[IComponent.notify]]
+     */
+    emit(payload: T): void;
+    /**
+     * Disable `this.emit` and the associated Component's `notify`
+     */
+    disable(): void;
+    /**
+     * Enable `this.emit` and the associated Component's ability to `notify`
+     */
+    enable(): void;
+  }
+  /**
+   * A spy allows for spying on events triggered on a component from outside of the component system
+   */
+  export interface ISceneObjectSpy<T = unknown> {
+    /**
+     * The path to spy on
+     */
+    readonly path: InputPath | OutputPath | EventPath | EmitPath;
+    /**
+     * Triggered when the data at `path` changes or when its event is triggered
+     * @param eventData The data sent with event from a [[IComponent.notify]] call or the new value of the input or output referenced by the path.
+     */
+    onEvent(eventData: T): void;
+  }
+  /**
+   * A factory and container for a collection of scene nodes and components connected via property bindings.
+   */
+  export interface IObject {
+    /**
+     * Adds a scene node to this scene object and returns it. If an id isn't provided, one will be autogenerated.
+     *
+     * @param id a optional unique id
+     *
+     * @return The new scene node.
+     */
+    addNode(id?: string): INode;
+    /**
+     * Create an array of scene nodes.
+     *
+     * @param nodeCount the number of nodes to create. This value must be greater than zero.
+     *
+     * @return An array of nodes.
+     */
+    addNodes(nodeCount: number): INode[];
+    /**
+     * Starts all nodes referenced by this scene object.
+     */
+    start(): void;
+    /**
+     * Stops all nodes referenced by this scene object. The scene object cannot be restarted after this function has been called.
+     */
+    stop(): void;
+    /**
+     * Call this function to bind an input property of the target component to an output property of the source
+     * component between any nodes contained by this scene object.
+     *
+     * @param targetComponent The component listening to property changes.
+     * @param targetProp  The component input property name.
+     * @param sourceComponent The component broadcasting property changes.
+     * @param sourceProp The component output property name.
+     * @deprecated Use [[IObject.bindPath]] instead.
+     */
+    bind(
+      targetComponent: IComponent,
+      targetProp: string,
+      sourceComponent: IComponent,
+      sourceProp: string
+    ): void;
+    /**
+     * Add a path identified by a unique string.
+     * They `pathDesc.type` will determine which path type is returned.
+     *
+     * @param pathDesc The path descriptor to the component property.
+     * @deprecated Use one of [[addInputPath]], [[addOutputPath]], [[addEventPath]], or [[addEmitPath]]
+     */
+    addPath(pathDesc: InputPathDescriptor): InputPath;
+    addPath(pathDesc: OutputPathDescriptor): OutputPath;
+    addPath(pathDesc: EventPathDescriptor): EventPath;
+    addPath(pathDesc: EmitPathDescriptor): EmitPath;
+    /**
+     * Add and receive an [[InputPath]] to the property of an [[IComponent]].
+     * The returned [[InputPath]] can be used to read or set the value of `property` on `component`'s inputs.
+     * Changes to the value can also be observed by creating an [[ISceneObjectSpy]] and calling [[spyOnEvent]].
+     * The path can also be bound to an [[OutputPath]] of another (or the same) component to automatically update a component's input value.
+     *
+     * ```typescript
+     *  class Counter {
+     *    public inputs = {
+     *      count: 1,
+     *    };
+     *  }
+     *  // create an `IObject`, add an `INode` and an `IComponent` to the node, see the relevant functions (createObject, addNode, addComponent)
+     *  const [object, node, component];
+     *
+     *  // create the path
+     *  const inputPath = object.addInputPath(component, 'count');
+     *
+     *  // observe changes to the value of `inputs.count` in component
+     *  object.spyOnEvent({
+     *    path: inputPath,
+     *    onEvent(newValue) {
+     *      console.log(`component.input.count's new value is ${newValue}`);
+     *    },
+     *  });
+     *  // read and change the value of the input in the component
+     *  const countValue = inputPath.get();
+     *  inputPath.set(count + 1);
+     *
+     * // bind the path to the value from another (output) path
+     *  object.bindPath(inputPath, outputPath);
+     * ```
+     *
+     * @param component
+     * @param property
+     * @param id
+     * @introduced 3.1.71.14-0-gaf77add383
+     */
+    addInputPath(
+      component: IComponent,
+      property: string,
+      id?: string
+    ): InputPath;
+    /**
+     * Add and receive an [[OutputPath]] to the property of an [[IComponent]].
+     * The returned [[OutputPath]] can be used to read the value of `component`'s output `property`.
+     * Changes to the value can also be observed by creating an [[ISceneObjectSpy]] and calling [[spyOnEvent]].
+     * The path can also be bound to an [[InputPath]] of another (or the same) component to automatically update a component's input value.
+     *
+     * ```typescript
+     *  class NumberGenerator {
+     *    public outputs = {
+     *      current: 1,
+     *    };
+     *  }
+     *  // create an `IObject`, add an `INode` and an `IComponent` to the node, see the relevant functions (createObject, addNode, addComponent)
+     *  const [object, node, component];
+     *
+     *  // create the path
+     *  const outputPath = object.addOutputPath(component, 'current');
+     *
+     *  // observe changes to the value of `outputs.current` in component
+     *  object.spyOnEvent({
+     *    path: outputPath,
+     *    onEvent(newValue) {
+     *      console.log(`component.output.current's new value is ${newValue}`);
+     *    },
+     *  });
+     *  // read and bind the value of the output to another component's input value
+     *  const currentValue = outputPath.get();
+     *  object.bindPath(inputPath, outputPath);
+     * ```
+     *
+     * @param component
+     * @param property
+     * @param id
+     * @introduced 3.1.71.14-0-gaf77add383
+     */
+    addOutputPath(
+      component: IComponent,
+      property: string,
+      id?: string
+    ): OutputPath;
+    /**
+     * Add and receive an [[EventPath]] for an [[IComponent]].
+     * The path can be bound to an [[EmitPath]] of another (or the same) component to automatically trigger the component's [[IComponent.onEvent]].
+     *
+     * ```typescript
+     *  class Renderable {
+     *    public events = {
+     *      rerender: true,
+     *    };
+     *  }
+     *  // create an `IObject`, add an `INode` and an `IComponent` to the node, see the relevant functions (createObject, addNode, addComponent)
+     *  const [object, node, component];
+     *
+     *  // create the path
+     *  const eventPath = object.addEventPath(component, 'rerender');
+     *
+     *  // bind the event path so that it triggers the component's onEvent when `emitPath` emits an event
+     *  object.bindPath(eventPath, emitPath);
+     * ```
+     *
+     * @param component
+     * @param property
+     * @param id
+     * @introduced 3.1.71.14-0-gaf77add383
+     */
+    addEventPath(
+      component: IComponent,
+      property: string,
+      id?: string
+    ): EventPath;
+    /**
+     * Add and receive an [[EmitPath]] for an [[IComponent]].
+     * It is also possible to spy when an event is emitted by creating an [[ISceneObjectSpy]] and calling [[spyOnEvent]].
+     * The path can be bound to an [[EventPath]] of another (or the same) component to automatically trigger the component's [[IComponent.onEvent]].
+     *
+     * ```typescript
+     *  class Clickable {
+     *    public events = {
+     *      clicked: true,
+     *    };
+     *  }
+     *  // create an `IObject`, add an `INode` and an `IComponent` to the node, see the relevant functions (createObject, addNode, addComponent)
+     *  const [object, node, component];
+     *
+     *  // create the path
+     *  const emitPath = object.addEmitPath(component, 'clicked');
+     *
+     *  // bind the emit path so that it triggers the `emitPath`'s associated component's onEvent when an event is emitted
+     *  object.bindPath(eventPath, emitPath);
+     *
+     *  // observe emissions of 'clicked' events in component
+     *  object.spyOnEvent({
+     *    path: emitPath,
+     *    onEvent(eventData) {
+     *      console.log(`a 'clicked' event was emitted with the data: ${eventData}`);
+     *    },
+     *  });
+     * ```
+     *
+     * @param component
+     * @param property
+     * @param id
+     * @introduced 3.1.71.14-0-gaf77add383
+     */
+    addEmitPath(component: IComponent, property: string, id?: string): EmitPath;
+    /**
+     * Bind the value referenced by `inputPath` to the value of `outputPath`.
+     * As the value at `outputPath` changes, the value of `inputPath` will reflect it.
+     *
+     * ```
+     * const [sceneObject] = await sdk.Scene.createObjects(1);
+     * const node = sceneObject.addNode();
+     *
+     * // mp.objLoader has an outputs.visible property
+     * const comp1 = node.addComponent('mp.objLoader');
+     * const outputPath = sceneObject.addOutputPath(comp1, 'visible', 'objLoader-visible');
+     *
+     * // myComponent has an inputs.toggleState property
+     * const comp2 = node.addComponent('myComponent');
+     * const inputPath = sceneObject.addInputPath(comp2, 'toggleState', 'myComponent-toggle');
+     * sceneObject.bindPath(inputPath, outputPath);
+     *
+     * node.start();
+     * // comp1.inputs.visible will now always equal comp2.outputs.toggleState
+     * ```
+     * @param inputPath
+     * @param outputPath
+     */
+    bindPath(inputPath: InputPath, outputPath: OutputPath): void;
+    /**
+     * Bind an event referenced by `eventPath` to a [[IComponent.notify]] call at `emitPath`
+     *
+     * ```
+     * const [sceneObject] = await sdk.Scene.createObject(1);
+     * const node = sceneObject.createNode();
+     *
+     * // myReceiver has an `onEvent` lifecycle function and an `events['do.update']` property
+     * const receiver = node.addComponent(`myReceiver');
+     * const eventPath = sceneObject.addEventPath(receiver, 'do.update', 'my-reciever-update');
+     *
+     * // myEmitter calls notify with an 'updated' event and has an `emits['updated']` property
+     * const emitter = node.addComponent('myEmitter');
+     * const emitPath = sceneObject.addEmitPath(emitter, 'updated', 'my-component-updated');
+     * sceneObject.bindPath(eventPath, emitPath);
+     *
+     * node.start();
+     * // receiver.onEvent('do.update', ...) will now be called whenever emitter calls notify('updated')
+     * ```
+     * @param eventPath
+     * @param emitPath
+     */
+    bindPath(eventPath: EventPath, emitPath: EmitPath): void;
+    /**
+     * Spy on events or input and output value changes
+     *
+     * ```
+     * const [sceneObject] = await sdk.Scene.createObjects(1);
+     * const node = sceneObject.createNode();
+     *
+     * // mp.objLoader has an outputs.visible property
+     * const comp1 = node.addComponent('mp.objLoader');
+     * const outputPath = sceneObject.addOutputPath(comp1, 'visible', 'objLoader-visible');
+     *
+     * const outputSpy = {
+     *   path: outputPath,
+     *   onEvent(type, data) {
+     *     console.log('outputs updated', type, data);
+     *   }
+     * };
+     *
+     * sceneObject.spyOnEvent(outputSpy);
+     *
+     * node.start();
+     * // outputSpy.onEvent('outputsUpdated', comp1.outputs.visible) will now be called whenever comp1.outputs.visible changes
+     * ```
+     * @param spy
+     */
+    spyOnEvent(spy: ISceneObjectSpy): ISubscription;
+    /**
+     * Sets the input property of a path. The path must be added prior to calling this function.
+     *
+     * @param pathId The path id.
+     * @param value The value to set.
+     * @deprecated Use [[InputPath.set]] instead.
+     */
+    setValueAtPath(pathId: string, value: unknown): void;
+    /**
+     * Reads the output property of a path. The path must be added prior to calling this function.
+     *
+     * @param pathId
+     * @returns the value of the output property.
+     * @deprecated Use [[InputPath.get]] or [[OutputPath.get]] instead.
+     */
+    getValueAtPath(pathId: string): unknown;
+    /**
+     * Returns an iterator containing a path and its descriptor. Typically used to access the paths from a deserialized scene object.
+     *
+     * ```
+     * // This example sets the values of all input paths provided by deserialized scene object.
+     *
+     * const deserialized = await sdk.Scene.deserialize(myString);
+     * const paths = deserialized.pathIterator();
+     * for (const { desc, path } of paths) {
+     *   if (desc.type === Scene.PathType.INPUT) {
+     *     // we know this path is an input path
+     *     const inputPath = desc.path as Scene.InputPath;
+     *
+     *     // Now you can set the value at the path
+     *     // You can cache the returned input path to use it later.
+     *     inputPath.set(10);
+     *   }
+     * }
+     * ```
+     */
+    pathIterator(): IterableIterator<PathInfo>;
+    /**
+     * Returns in iterator iterating over all the nodes contained by this object.
+     */
+    nodeIterator(): IterableIterator<INode>;
+  }
+  /**
+   * The objects returned by the [[pathIterator]] implement this interface. Each descriptor and path should correlate by type.
+   * For example, a path of type [[PathType.INPUT]] would have a descriptor of type [[InputPathDescriptor]] and path of type [[InputPath]].
+   */
+  export interface PathInfo {
+    desc:
+      | InputPathDescriptor
+      | OutputPathDescriptor
+      | EmitPathDescriptor
+      | EventPathDescriptor;
+    path: InputPath | OutputPath | EmitPath | EventPath;
+  }
+  export {};
+}
+export interface Scene {
+  Component: typeof Scene.Component;
+  InteractionType: typeof Scene.InteractionType;
+  PathType: typeof Scene.PathType;
+  /**
+   * This is a convenience function that provides access to three.js framework objects.
+   * Typically used to configure global properties on the renderer or effect composer.
+   *
+   * ```
+   * await sdk.Scene.configure(function(renderer, three, effectComposer){
+   *   // configure PBR
+   *   renderer.physicallyCorrectLights = true;
+   *
+   *   // configure shadow mapping
+   *   renderer.shadowMap.enabled = true;
+   *   renderer.shadowMap.bias = 0.0001;
+   *   renderer.shadowMap.type = three.PCFSoftShadowMap;
+   *
+   *   if (effectComposer) {
+   *     // add a custom pass here
+   *   }
+   * });
+   * ```
+   *
+   * @param callback.renderer Matterport's WebGLRenderer object.
+   * @param callback.three three.js module.
+   * @param callback.effectComposer Matterport's EffectComposer object. This value can be null.
+   * To enable the effect composer, you must set useEffectComposer: 1 in your application config.
+   * Please note that enabling effect composer disables renderer.antialias (&aa=1)
+   *
+   * @bundle
+   */
+  configure(
+    callback: (
+      renderer: THREE.WebGLRenderer,
+      three: typeof THREE,
+      effectComposer: EffectComposer | null
+    ) => void
+  ): Promise<void>;
+  /**
+   * Creates a scene node.
+   * @return A promise that resolves with the new scene node.
+   * @deprecated Use [[createObjects]] to create an object to then create nodes instead.
+   *
+   * @bundle
+   */
+  createNode(): Promise<Scene.INode>;
+  /**
+   * Creates an array of scene nodes.
+   * @param count The number of scene nodes to create.
+   * @return A promise that resolves with the array of scene nodes.
+   * @deprecated Use [[createObjects]] to create an object to then create nodes instead.
+   *
+   * @bundle
+   */
+  createNodes(count: number): Promise<Scene.INode[]>;
+  /**
+   * Creates an array of scene objects.
+   * @param count The number of scene objects to create.
+   * @return A promise that resolves with the array of scene objects.
+   * ```
+   * // create a single object and destructure it from the returned array
+   * const [sceneObject] = await sdk.Scene.createObjects(1);
+   * const node = sceneObject.createNode();
+   * // ...
+   * ```
+   *
+   * @bundle
+   */
+  createObjects(count: number): Promise<Scene.IObject[]>;
+  /**
+   * This function returns a scene object with all of its scene nodes from a serialized scene.
+   * The returned scene object has not been started yet.
+   * @param text The serialized scene.
+   * @return A promise that resolves with a scene object.
+   *
+   * @bundle
+   */
+  deserialize(text: string): Promise<Scene.IObject>;
+  /**
+   * Serialize a scene object, its nodes, and their components to a string.
+   * @param sceneObject
+   * @return A promise that resolves with the serialized string.
+   *
+   * @bundle
+   */
+  serialize(sceneObject: Scene.IObject): Promise<string>;
+  /**
+   * This function serializes an array of scene nodes and their components to a string.
+   * This function is only provided to provide an upgrade path from nodes that were created before the introduction of `IObject`s.
+   *
+   * @param sceneNodes An array of scene nodes.
+   * @return A promise that resolves with the serialized string.
+   *
+   * @bundle
+   * @deprecated Prefer to serialize an array of `Scene.INode` through their containing `Scene.IObject` instead.
+   */
+  serialize(sceneNodes: Scene.INode[]): Promise<string>;
+  /**
+   * Register a component factory.
+   * @param name A unique component name.
+   * @param factory A function that returns a new instance of the component.
+   *
+   * @bundle
+   * @return a disposable that can be used to unregister the component.
+   */
+  register(
+    name: string,
+    factory: () => Scene.IComponent
+  ): Promise<IDisposable | null>;
+  /**
+   * Register an array of component factories all at once and return an array of disposables.
+   * Calling dispose on any of the returned disposables, unregisters the component.
+   *
+   *
+   * ```
+   * function myComponent1Factory() {
+   *    return new MyComponent1();
+   * }
+   *
+   * function myComponent2Factory() {
+   *    return new MyComponent2();
+   * }
+   *
+   * const disposables = await sdk.Scene.registerComponents([
+   *   {
+   *     name: 'myComponent1',
+   *     factory: myComponent1Factory,
+   *   },
+   *   {
+   *     name: 'myComponent2',
+   *     factory: myComponent2Factory,
+   *   },
+   * ]);
+   *
+   * // when you are done with the components, you can unregister the components by calling dispose on each item in the return result.
+   * for (const disposable of disposables) {
+   *   disposable.dispose();
+   * }
+   *
+   * ```
+   *
+   * @param components An array of [[IComponentDesc]]
+   * @return an array of disposables that unregister the components when disposed.
+   *
+   * @bundle
+   */
+  registerComponents(
+    components: Scene.IComponentDesc[]
+  ): Promise<IDisposable[] | null>;
+  unregisterComponents(components: Scene.IComponentDesc[]): Promise<void>;
+}
+declare namespace R3F {
+  type ExternalR3FCallbacks = {
+    onFrame: () => void;
+    onSizeChange: (width: number, height: number) => void;
+    onPixelRatioChange: (ratio: number) => void;
+  };
+  interface IContext {
+    /**
+     * The showcase three.js renderer.<br>
+     * See <a href="https://threejs.org/docs/#api/en/renderers/WebGLRenderer" target="_blank">https://threejs.org/docs/#api/en/renderers/WebGLRenderer</a>
+     */
+    renderer: THREE.WebGLRenderer;
+    /**
+     * The showcase scene.<br>
+     * See <a href="https://threejs.org/docs/#api/en/scenes/Scene" target="_blank">https://threejs.org/docs/#api/en/scenes/Scene</a>
+     *
+     */
+    scene: THREE.Scene;
+    /**
+     * The main camera. It is read-only.<br>
+     * See <a href="https://threejs.org/docs/#api/en/cameras/Camera" target="_blank">https://threejs.org/docs/#api/en/cameras/Camera</a>
+     */
+    camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
+    /**
+     * Function to register a R3F-created mesh with the events system.
+     */
+    registerMeshEvents: (obj: THREE.Object3D) => ISubscription;
+  }
+}
+interface R3F {
+  /**
+   * Internal: function for `@matterport/r3f` `MatterportViewer` component to register
+   * an externally managed react-three/fiber scene to render within showcase
+   * @experimental
+   */
+  registerR3F(callbacks: R3F.ExternalR3FCallbacks): Promise<R3F.IContext>;
+  /**
+   * Internal: function for `@matterport/r3f` npm package `MatterportFocusCamera` component
+   * to manage navigation to look at a specific target
+   * @experimental
+   */
+  focus(
+    target: THREE.Vector3 | THREE.Box3,
+    options?: {
+      from?: THREE.Vector3;
+      mode?: Mode.Mode.INSIDE | Mode.Mode.DOLLHOUSE | Mode.Mode.FLOORPLAN;
+      transition?: Mode.TransitionType;
+    }
+  ): Promise<void>;
+  /** Request to temporarily block camera controls. */
+  controlsToggle(enabled: boolean): Promise<void>;
+  /** Request to temporarily block MP's click to navigate functions */
+  navigationToggle(enabled: boolean): Promise<void>;
+}
+/**
+ * Options to provide when connecting the sdk
+ */
+export type ConnectOptions = {
   /** A token to provide access to a model */
   auth: string;
   /**
@@ -4942,58 +6229,101 @@ type ConnectOptions = {
   sdkType: string;
 };
 /**
- * When including the sdk script (`<script src='https://static.matterport.com/showcase-sdk/2.0.1-0-g64e7e88/sdk.js'>`) on your page,
- * an [[MP_SDK]] will be attached to the window object.
- *
- * This type can be used to cast the window object to access the types available on the MP_SDK object.
+ * The entire MP Sdk returned from a successful call to `MP_SDK.connect` on the [[ShowcaseBundleWindow]].
  *
  * ```typescript
- * const showcaseWindow = window as ShowcaseEmbedWindow;
- * showcaseWindow.MP_SDK.connect( ... )
+ * const sdk: MpSdk = await bundleWindow.MP_SDK.connect(...);
  * ```
  */
-export type ShowcaseEmbedWindow = Window &
-  typeof globalThis & {
-    MP_SDK: MP_SDK;
-  };
+export type MpSdk = CommonMpSdk & {
+  Scene: Scene;
+  R3F: R3F;
+};
 /**
- * The entrypoint for connecting to the SDK.
+ * Provide a single MpSdk namespace that can be used to access all sub-namespace types
+ *
+ * ```typescript
+ * const sdk: Mpsdk = connect(...);
+ * const camera: MpSdk.Camera = sdk.Camera;
+ * ```
+ *
+ *  Due to a limitation in typescript, this namespace must be re-created in each file. The
+ *  export groupings are created to simplify bookkeeping with the other files.
+ */
+export declare namespace MpSdk {
+  export { Scene };
+  export {
+    Color,
+    ConditionCallback,
+    Dictionary,
+    ICondition,
+    IMapObserver,
+    IObservable,
+    IObservableMap,
+    IObserver,
+    ISubscription,
+    ObserverCallback,
+    Orientation,
+    Rotation,
+    Size,
+    Vector2,
+    Vector3,
+  };
+  export {
+    App,
+    Asset,
+    Camera,
+    Conversion,
+    Floor,
+    Graph,
+    Label,
+    Link,
+    Mattertag,
+    Measurements,
+    Mode,
+    Model,
+    OAuth,
+    Pointer,
+    R3F,
+    Renderer,
+    Room,
+    Sensor,
+    Settings,
+    Sweep,
+    Tag,
+    Tour,
+    View,
+  };
+}
+/**
+ * A Window type that can be used to cast the bundle's iframe's contentWindow to hint at the existance of the [[MP_SDK]] object.
+ *
+ * ```typescript
+ * const bundleIframe = document.getElementById<HTMLIFrameElement>('showcase');
+ * const showcaseWindow = bundleIframe.contentWindow as ShowcaseBundleWindow;
+ * showcaseWindow.MP_SDK.connect(showcaseWindow);
+ * ```
+ */
+export type ShowcaseBundleWindow = (
+  | (Window & typeof globalThis)
+  | ShadowRoot
+) & {
+  MP_SDK: MP_SDK;
+};
+/**
+ * The entrypoint for connecting to the SDK and creating an [[MpSdk]] interface.
+ *
+ * ```typescript
+ * const bundleIframe = document.getElementById<HTMLIFrameElement>('showcase');
+ * const showcaseWindow = bundleIframe.contentWindow as ShowcaseBundleWindow;
+ * showcaseWindow.MP_SDK.connect(showcaseWindow);
+ * ```
  */
 export interface MP_SDK {
-  /**
-   * Connect to the SDK and and create an [[MpSdk]] interface.
-   *
-   * ```typescript
-   * const showcaseIframe = document.getElementById<HTMLIFrameElement>('showcase');
-   * const embeddingWindow = window as ShowcaseEmbedWindow;
-   * embeddingWindow.MP_SDK.connect(showcaseIframe);
-   * ```
-   * @param target The iframe of the embedded Showcase
-   * @param options Additional, optional options to include while connect like auth tokens, see [[ConnectOptions]]
-   */
   connect(
-    target: HTMLIFrameElement,
+    target: ShowcaseBundleWindow,
     options?: Partial<ConnectOptions>
-  ): Promise<CommonMpSdk>;
-  /**
-   * Connect to the SDK and and create an [[MpSdk]] interface.
-   *
-   * ```typescript
-   * const showcaseIframe = document.getElementById<HTMLIFrameElement>('showcase');
-   * const embeddingWindow = window as ShowcaseEmbedWindow;
-   * embeddingWindow.MP_SDK.connect(showcaseIframe, `${APPLICATION_KEY}, '');
-   * ```
-   * @param target
-   * @param applicationKey
-   * @param unused
-   */
-  connect(
-    target: HTMLIFrameElement,
-    applicationKey: string,
-    unused: ""
-  ): Promise<CommonMpSdk>;
+  ): Promise<MpSdk>;
 }
-
-export { CommonMpSdk as MpSdk };
 
 export {};

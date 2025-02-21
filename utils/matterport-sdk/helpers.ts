@@ -1,7 +1,7 @@
-import { CommonMpSdk, Sweep } from "@/types/sdk";
+import { MpSdk, Sweep } from "@/types/sdk";
 
 export async function moveToSweep(
-  instance: CommonMpSdk,
+  instance: MpSdk,
   sweepId: string,
   options?: Sweep.MoveToOptions
 ) {
