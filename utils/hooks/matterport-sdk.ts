@@ -27,7 +27,6 @@ export function useCameraData(instance: MpSdk | null) {
   React.useEffect(() => {
     if (instance) {
       instance.Camera.pose.subscribe((pose) => {
-        console.log(pose);
         dataChanged(pose);
       });
     }
