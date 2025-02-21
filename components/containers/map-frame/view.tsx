@@ -25,7 +25,6 @@ export function MapFrame({
       className={cn("w-full h-full", className)}
       src={`/matterport-bundle/showcase.html?m=${modelId}&play=${autoplay}&applicationKey=${mapSdkKey}`}
       allowFullScreen
-      allow="vr"
       {...props}
     />
   );

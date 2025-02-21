@@ -1,8 +1,8 @@
-import { ShowcaseEmbedWindow } from "@/types/sdk";
+import { ShowcaseBundleWindow } from "@/types/sdk";
 
 export function assertIsShowcaseEmbedWindow(
-  window: Window
-): asserts window is ShowcaseEmbedWindow {
+  window: Window | ShadowRoot
+): asserts window is ShowcaseBundleWindow {
   if (!("MP_SDK" in window)) {
     throw new Error("Expected window.MP_SDK to be defined");
   }

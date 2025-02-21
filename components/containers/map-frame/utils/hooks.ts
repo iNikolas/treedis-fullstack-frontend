@@ -1,6 +1,8 @@
 import React from "react";
-import { MapFrameProps } from "../types";
+
 import { assertIsShowcaseEmbedWindow } from "@/utils/assertions";
+
+import { MapFrameProps } from "../types";
 
 export function useSdkInit(onInit: MapFrameProps["onInit"]) {
   const [error, setError] = React.useState("");
@@ -22,7 +24,7 @@ export function useSdkInit(onInit: MapFrameProps["onInit"]) {
 
         assertIsShowcaseEmbedWindow(showcaseWindow);
 
-        const mapSdk = await showcaseWindow.MP_SDK.connect(mapRef.current);
+        const mapSdk = await showcaseWindow.MP_SDK.connect(showcaseWindow);
 
         if (inInitHandlerRef.current) {
           inInitHandlerRef.current(mapSdk);
